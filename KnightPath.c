@@ -10,16 +10,18 @@
 
 typedef struct _square{
     int color;
-    struct _square** adjacent;
+    struct _square* adjacent;
+    int adjacent_count;
 }square;
 
 // create an 8x8 array of struct _square (to represent the board)
 // link each square to the squares a knight can jump to
-// run BFS algorythm to find shortest path(s) from one square to another
+// run BFS algorithm to find shortest path(s) from one square to another
 
 int link_squares(square** board);
 int text_to_coords(const char* square, int* x, int* y);
 int coords_to_text(int x, int y, char* square);
+int inrange(int coordinate) {return (coordinate >= 0 && coordinate <= 8) ? 1:0;}
 
 int main(){
 
@@ -27,7 +29,26 @@ int main(){
 }
 
 int link_squares(square** board){
+    int size = 0, x, y;
+    square* temp_links[8];
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            // check all legal moves from one square (max of 8) and add them to the list of adjacent squares
+            if(inrange(x = i+1) && inrange(y = j+3)) temp_links[size++] = &board[x][y];
+            if(inrange(x = i+1) && inrange(y = j-3)) temp_links[size++] = &board[x][y];
+            if(inrange(x = i-1) && inrange(y = j+3)) temp_links[size++] = &board[x][y];
+            if(inrange(x = i-1) && inrange(y = j-3)) temp_links[size++] = &board[x][y];
+            if(inrange(x = i+3) && inrange(y = j+1)) temp_links[size++] = &board[x][y];
+            if(inrange(x = i+3) && inrange(y = j-1)) temp_links[size++] = &board[x][y];
+            if(inrange(x = i-3) && inrange(y = j+1)) temp_links[size++] = &board[x][y];
+            if(inrange(x = i-3) && inrange(y = j-1)) temp_links[size++] = &board[x][y];
 
+            board[i][j].adjacent_count = size + 1;
+            board[i][j].adjacent = (square*)malloc((size+1) * sizeof(square));
+            if(!board[i][j].adjacent) return -1;
+            memcpy(&board[i][j].adjacent, &temp_links, (size+1) * sizeof(square));
+        }
+    }
     return 0;
 }
 
