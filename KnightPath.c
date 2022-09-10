@@ -8,27 +8,58 @@
 #define OFFSET_LETTER 'a'
 #define OFFSET_NUMBER '1'
 
+typedef struct _coordinates{
+    unsigned short int x, y;
+}coordinates;
 typedef struct _square{
-    int color;
+    coordinates coords;
+    unsigned short int color;
     struct _square* adjacent;
-    int adjacent_count;
+    unsigned short int adjacent_count;
+    struct _square* previous;
 }square;
 
-// create an 8x8 array of struct _square (to represent the board)
-// link each square to the squares a knight can jump to
-// run BFS algorithm to find shortest path(s) from one square to another
+typedef struct _queue{
+    square** data;
+    size_t head;
+    size_t tail;
+    size_t count;
+    size_t size;
+}Queue;
 
-int link_squares(square** board);
+
+// create an 8x8 array of struct _square to represent the board
+// link each square to the squares a knight can jump to
+// run BFS algorithm to find shortest path (one of) from one square to another
+
+int link_squares(square board[8][8]);
+int inrange(int coordinate) {return (coordinate >= 0 && coordinate <= 8) ? 1:0;}
 int text_to_coords(const char* square, int* x, int* y);
 int coords_to_text(int x, int y, char* square);
-int inrange(int coordinate) {return (coordinate >= 0 && coordinate <= 8) ? 1:0;}
+void freeboard(square board[8][8]);
+int queue_write(Queue Q, square* to_write);
+int queue_read(Queue Q, square* data);
 
 int main(){
+    square board[8][8];
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            board[i][j].color = WHITE;
+            board[i][j].coords.x = i;
+            board[i][j].coords.y = j;
+        }
+    }
+    if(link_squares(board) != 0){
+        freeboard(board);
+        return -1;
+    }
+
+
 
     return 0;
 }
 
-int link_squares(square** board){
+int link_squares(square board[8][8]){
     int size = 0, x, y;
     square* temp_links[8];
     for(int i = 0; i < 8; i++){
@@ -45,7 +76,10 @@ int link_squares(square** board){
 
             board[i][j].adjacent_count = size + 1;
             board[i][j].adjacent = (square*)malloc((size+1) * sizeof(square));
-            if(!board[i][j].adjacent) return -1;
+            if(!board[i][j].adjacent){
+                perror("malloc fail in func link_squares\n");
+                return -1;
+            }
             memcpy(&board[i][j].adjacent, &temp_links, (size+1) * sizeof(square));
         }
     }
@@ -77,7 +111,51 @@ int coords_to_text(int x, int y, char* square){
     square[1] = y + OFFSET_NUMBER;
     square[2] = '\0';
     return 0;
-    // if sizeof(square) <3 this has undefined behaviour
+    // if sizeof(square) < 3 this has undefined behaviour
     // too bad :(
 }
 
+// free all heap allocated memory
+void freeboard(square board[8][8]){
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            free(board[i][j].adjacent);
+        }
+    }
+}
+
+int queue_write(Queue Q, square* to_write){
+    if(Q.count + 1 < Q.size){
+        int newsize = Q.size + 5;
+        square** newq = malloc((newsize) * sizeof(square));
+        if(!newq){
+            perror("malloc fail in func queue_write\n");
+            return -1;
+        }
+        if(Q.tail <= Q.head){
+            memcpy(newq, &Q.data[Q.head], (Q.size - Q.head) * sizeof(square)); // copy memory from head to end of old queue
+            memcpy(&newq[Q.size - Q.head], Q.data, Q.tail * sizeof(square)); // copy memory from start of old queue to tail
+        }
+        else{
+            memcpy(newq, &Q.data[Q.head], Q.count * sizeof(square));
+        }
+        free(Q.data);
+        Q.data = newq;
+        Q.size = newsize;
+        Q.head = 0;
+        Q.tail = Q.count;
+    }
+    Q.data[Q.tail] = to_write;
+    ++Q.count;
+    ++Q.tail;
+
+    return 0;
+}
+
+int queue_read(Queue Q, square* data){
+    data = Q.data[Q.head];
+    ++Q.head;
+    if(Q.head == Q.size) Q.head = 0;    // if head has reached over the end, reset it to 0
+    --Q.count;
+    return 0;
+}
