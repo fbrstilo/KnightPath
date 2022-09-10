@@ -2,15 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "chessboard.h"
-#include "queue.h"
+#include "bfs.h"
 
-#define WHITE 0
-#define GREY 1
-#define BLACK 2
 
-// create an 8x8 array of struct _square to represent the board
-// link each square to the squares a knight can jump to
-// run BFS algorithm to find shortest path (one of) from one square to another
+/*
+    Console program that outpust a set of chess moves a knight would need to make in order to get to a desired square
+    Implemented using a BFS algorithm
+*/
 
 int link_squares(square board[8][8]);
 int inrange(int coordinate) {return (coordinate >= 0 && coordinate <= 8) ? 1:0;}
@@ -19,19 +17,10 @@ void freeboard(square board[8][8]);
 
 int main(){
     square board[8][8];
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            board[i][j].color = WHITE;
-            board[i][j].coords.x = i;
-            board[i][j].coords.y = j;
-        }
-    }
     if(link_squares(board) != 0){
         freeboard(board);
         return -1;
     }
-
-
 
     return 0;
 }

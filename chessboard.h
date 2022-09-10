@@ -14,12 +14,12 @@ typedef struct _coordinates{
 typedef struct _square{
     coordinates coords;
     unsigned short int color;
-    struct _square* adjacent;
+    struct _square** adjacent;
     unsigned short int adjacent_count;
     struct _square* previous;
 }square;
 
-// convert chess coordinates to numeric by OFFSET_LETTERing from the start of ASCII table
+// convert chess coordinates to numeric by offseting from the start of ASCII table
 int text_to_coords(const char* square, int* x, int* y){
     if(strlen(square) != 2) return 1;
 
@@ -36,7 +36,7 @@ int text_to_coords(const char* square, int* x, int* y){
     return 0;
 }
 
-// convert numeric coordinates to chess notation by OFFSET_LETTERing from the start of ASCII table
+// convert numeric coordinates to chess notation by offseting from the start of ASCII table
 int coords_to_text(int x, int y, char* square){
     if(!(x >= 1 && x <= 8 && y >= 1 && y <= 8)) return 1; // check for invalid coordinates
     square[0] = x + OFFSET_LETTER;
