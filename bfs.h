@@ -1,5 +1,3 @@
-// Implemetation of a FIFO queue
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +20,7 @@ typedef struct _queue{
 }queue;
 
 int queue_write(queue* Q, square* to_write){
-    if(Q->count + 1 < Q->size){
+    if(Q->count + 1 > Q->size){
         int newsize = Q->size + 5;
         square** newq = (square**)malloc((newsize) * sizeof(square*));
         if(!newq){
@@ -30,11 +28,17 @@ int queue_write(queue* Q, square* to_write){
             return -1;
         }
         if(Q->tail <= Q->head){
-            memcpy(newq, &Q->data[Q->head], (Q->size - Q->head) * sizeof(square*)); // copy memory from head to end of old queue
-            memcpy(&newq[Q->size - Q->head], Q->data, Q->tail * sizeof(square*)); // copy memory from start of old queue to tail
+            for(int i = Q->head; i < Q->size; i++){
+                newq[i - Q->head] = Q->data[i]; // copy memory from head to end of old queue
+            }
+            for(int i = 0; i < Q->tail; i++){
+                newq[i + Q->size - Q->head] = Q->data[i]; // copy memory from begining to tail of old queue
+            }
         }
         else{
-            memcpy(newq, &Q->data[Q->head], Q->count * sizeof(square*));
+            for(int i = 0; i < Q->count; i++){
+                newq[i] = Q->data[i + Q->head]; // copy memory block from head to tail of olf queue
+            }
         }
         free(Q->data);
         Q->data = newq;
@@ -74,16 +78,8 @@ int queue_init(queue* Q, int size){
     return 0;
 }
 
-square* bfs(square board[8][8], square* start, square* end){
+int bfs(square board[8][8], square* start, square* end){
     square* current = NULL;
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            board[i][j].color = WHITE;
-            board[i][j].coords.x = i;
-            board[i][j].coords.y = j;
-            board[i][j].previous = NULL;
-        }
-    }
     queue Q;
     queue_init(&Q, 5);
 
@@ -97,10 +93,10 @@ square* bfs(square board[8][8], square* start, square* end){
                 current->adjacent[i]->previous = current;
                 if(current->adjacent[i] == end){
                     queue_free(&Q);
-                    return end;
+                    return 0;
                 }
                 for(int j = 0; j < current->adjacent[i]->adjacent_count; j++){
-                    queue_write(&Q, &(current->adjacent[i]->adjacent[j]));
+                    queue_write(&Q, current->adjacent[i]->adjacent[j]);
                 }
             }
         }
@@ -108,7 +104,7 @@ square* bfs(square board[8][8], square* start, square* end){
     }
 
     queue_free(&Q);
-    return NULL;    // in theory the function never reaches this 
+    return 1;    // in theory the function never reaches this
 }
 
 #endif

@@ -14,7 +14,7 @@ typedef struct _coordinates{
 typedef struct _square{
     coordinates coords;
     unsigned short int color;
-    struct _square** adjacent;
+    struct _square* adjacent[8];
     unsigned short int adjacent_count;
     struct _square* previous;
 }square;
