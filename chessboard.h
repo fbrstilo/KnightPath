@@ -38,7 +38,7 @@ int text_to_coords(const char* square, int* x, int* y){
 
 // convert numeric coordinates to chess notation by offseting from the start of ASCII table
 int coords_to_text(int x, int y, char* square){
-    if(!(x >= 1 && x <= 8 && y >= 1 && y <= 8)) return 1; // check for invalid coordinates
+    if(!(x >= 0 && x <= 7 && y >= 0 && y <= 7)) return 1; // check for invalid coordinates
     square[0] = x + OFFSET_LETTER;
     square[1] = y + OFFSET_NUMBER;
     square[2] = '\0';

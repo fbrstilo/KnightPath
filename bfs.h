@@ -46,6 +46,7 @@ int queue_write(queue* Q, square* to_write){
         Q->head = 0;
         Q->tail = Q->count;
     }
+    if(Q->tail >= Q->size) Q->tail = 0;
     Q->data[Q->tail] = to_write;
     ++Q->count;
     ++Q->tail;
@@ -95,14 +96,12 @@ int bfs(square board[8][8], square* start, square* end){
                     queue_free(&Q);
                     return 0;
                 }
-                for(int j = 0; j < current->adjacent[i]->adjacent_count; j++){
-                    queue_write(&Q, current->adjacent[i]->adjacent[j]);
-                }
+                queue_write(&Q, current->adjacent[i]);
             }
         }
         current->color = BLACK;
     }
-
+    printf("shid\n");
     queue_free(&Q);
     return 1;    // in theory the function never reaches this
 }

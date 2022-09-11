@@ -11,7 +11,7 @@
 */
 
 int link_squares(square board[8][8]);
-int inrange(int coordinate) {return (coordinate >= 0 && coordinate <= 8) ? 1:0;}
+int inrange(int coordinate) {return (coordinate >= 0 && coordinate <= 7) ? 1:0;}
 void freeboard(square board[8][8]);
 void ll_reverse(square* head);
 
@@ -35,7 +35,7 @@ int main(){
         return -1;
     }
 
-    //user input of start and end square
+    // User input of start and end square
     while(1){
         printf("Enter start and end square (eg. f3 g8):\n");
         scanf(" %s", start);
@@ -45,11 +45,12 @@ int main(){
     }
 
     bfs(board, &board[startx][starty], &board[endx][endy]);
-    ll_reverse(&board[endx][endy]);    //moves that BFS returns are in reverse order, so we reverse the created list
+    ll_reverse(&board[endx][endy]);    // Moves that BFS returns are in reverse order, so we reverse the created list
     curr = &board[startx][starty];
     while(curr){
         coords_to_text(curr->coords.x, curr->coords.y, pos);
         printf("%s ", pos);
+        curr = curr->previous;
     }
     printf("\n");
 
@@ -62,16 +63,16 @@ int link_squares(square board[8][8]){
     int size = 0, x, y;
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
-            // check all legal moves from one square (max of 8) and add them to the list of adjacent squares
+            // Check all legal moves from one square (max of 8) and add them to the list of adjacent squares
             size = 0;
-            if(inrange(x = i+1) && inrange(y = j+3)) board[i][j].adjacent[size++] = &board[x][y];
-            if(inrange(x = i+1) && inrange(y = j-3)) board[i][j].adjacent[size++] = &board[x][y];
-            if(inrange(x = i-1) && inrange(y = j+3)) board[i][j].adjacent[size++] = &board[x][y];
-            if(inrange(x = i-1) && inrange(y = j-3)) board[i][j].adjacent[size++] = &board[x][y];
-            if(inrange(x = i+3) && inrange(y = j+1)) board[i][j].adjacent[size++] = &board[x][y];
-            if(inrange(x = i+3) && inrange(y = j-1)) board[i][j].adjacent[size++] = &board[x][y];
-            if(inrange(x = i-3) && inrange(y = j+1)) board[i][j].adjacent[size++] = &board[x][y];
-            if(inrange(x = i-3) && inrange(y = j-1)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i+1) && inrange(y = j+2)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i+1) && inrange(y = j-2)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i-1) && inrange(y = j+2)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i-1) && inrange(y = j-2)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i+2) && inrange(y = j+1)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i+2) && inrange(y = j-1)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i-2) && inrange(y = j+1)) board[i][j].adjacent[size++] = &board[x][y];
+            if(inrange(x = i-2) && inrange(y = j-1)) board[i][j].adjacent[size++] = &board[x][y];
 
             board[i][j].adjacent_count = size;
         }
@@ -79,7 +80,7 @@ int link_squares(square board[8][8]){
     return 0;
 }
 
-// free all heap allocated memory
+// Free all heap allocated memory
 void freeboard(square board[8][8]){
     for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++){
@@ -88,15 +89,21 @@ void freeboard(square board[8][8]){
     }
 }
 
-void ll_reverse(square* head){
-    square* next = NULL;
-    square* curr = head;
+
+void ll_reverse(square* head_ref)
+{
     square* prev = NULL;
-    while(curr->previous){
-        next = curr->previous;
-        curr->previous = prev;
-        prev = curr;
-        curr = next;
+    square* current = head_ref;
+    square* next = NULL;
+    while (current != NULL) {
+        // Store next
+        next = current->previous;
+ 
+        // Reverse current node's pointer
+        current->previous = prev;
+ 
+        // Move pointers one position ahead.
+        prev = current;
+        current = next;
     }
 }
-    
