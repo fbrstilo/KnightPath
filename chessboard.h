@@ -12,11 +12,11 @@ typedef struct _coordinates{
 }coordinates;
 
 typedef struct _square{
-    coordinates coords;
-    unsigned short int color;
-    struct _square* adjacent[8];
-    unsigned short int adjacent_count;
-    struct _square* previous;
+    coordinates coords; // coordinates of the current square
+    unsigned short int color; // 'color' is used for checking wether BFS algorithm has visited the square
+    struct _square* adjacent[8]; // the (maximum) 8  squares a knight can jump to from current square
+    unsigned short int adjacent_count; // count of actual squares the knight can jump to
+    struct _square* previous; // square from which this one was reached (used for printing the path)
 }square;
 
 // convert chess coordinates to numeric by offseting from the start of ASCII table

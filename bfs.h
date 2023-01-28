@@ -56,9 +56,9 @@ int queue_write(queue* Q, square* to_write){
 
 square* queue_read(queue* Q){
     square* data = Q->data[Q->head];
-    ++Q->head;
+    Q->head += 1;
     if(Q->head == Q->size) Q->head = 0;    // if head has reached over the end, reset it to 0
-    --Q->count;
+    Q->count -= 1;
     return data;
 }
 
