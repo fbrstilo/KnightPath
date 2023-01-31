@@ -12,7 +12,6 @@
 
 int link_squares(square board[8][8]);
 int inrange(int coordinate) {return (coordinate >= 0 && coordinate <= 7) ? 1:0;}
-void freeboard(square board[8][8]);
 void ll_reverse(square* head);
 
 
@@ -31,7 +30,6 @@ int main(){
         }
     }
     if(link_squares(board) != 0){
-        freeboard(board);
         return -1;
     }
 
@@ -44,7 +42,9 @@ int main(){
         else printf("Invalid input. Please try again:\n");
     }
 
-    bfs(board, &board[startx][starty], &board[endx][endy]);
+    if(bfs(board, &board[startx][starty], &board[endx][endy]) != 0){ // the funtion fails safe so no aditional cleanup is needed, but the program can't continue
+        return 0;
+    }
     ll_reverse(&board[endx][endy]);    // Moves that BFS returns are in reverse order, so we reverse the created list
     curr = &board[startx][starty];
     while(curr){
@@ -79,16 +79,6 @@ int link_squares(square board[8][8]){
     }
     return 0;
 }
-
-// Free all heap allocated memory
-void freeboard(square board[8][8]){
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++){
-            free(board[i][j].adjacent);
-        }
-    }
-}
-
 
 void ll_reverse(square* head_ref)
 {

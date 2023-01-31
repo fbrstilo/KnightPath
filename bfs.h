@@ -46,7 +46,7 @@ int queue_write(queue* Q, square* to_write){
         Q->head = 0;
         Q->tail = Q->count;
     }
-    if(Q->tail >= Q->size) Q->tail = 0;
+    else if(Q->tail >= Q->size) Q->tail = 0; // wrap arround to start of allocated memory
     Q->data[Q->tail] = to_write;
     ++Q->count;
     ++Q->tail;
@@ -55,6 +55,10 @@ int queue_write(queue* Q, square* to_write){
 }
 
 square* queue_read(queue* Q){
+    if(Q->count == 0){
+        perror("Reading from empty queue");
+        return NULL;
+    }
     square* data = Q->data[Q->head];
     Q->head += 1;
     if(Q->head == Q->size) Q->head = 0;    // if head has reached over the end, reset it to 0
@@ -82,12 +86,18 @@ int queue_init(queue* Q, int size){
 int bfs(square board[8][8], square* start, square* end){
     square* current = NULL;
     queue Q;
-    queue_init(&Q, 5);
+    if(queue_init(&Q, 5) != 0){
+        return -1;
+    }
 
     start->color = GREY;
     queue_write(&Q, start);
     while(Q.count > 0){
         current = queue_read(&Q);
+        if(current == NULL){
+            queue_free(&Q);
+            return -1;
+        }
         for(int i = 0; i < current->adjacent_count; i++){
             if(current->adjacent[i]->color == WHITE){
                 current->adjacent[i]->color = GREY;
@@ -96,14 +106,17 @@ int bfs(square board[8][8], square* start, square* end){
                     queue_free(&Q);
                     return 0;
                 }
-                queue_write(&Q, current->adjacent[i]);
+                if(queue_write(&Q, current->adjacent[i]) != 0){
+                    queue_free(&Q);
+                    return -1;
+                }
             }
         }
         current->color = BLACK;
     }
     printf("shid\n");
     queue_free(&Q);
-    return 1;    // in theory the function never reaches this
+    return -1;    // in theory the function never reaches this
 }
 
 #endif
